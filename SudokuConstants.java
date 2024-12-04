@@ -1,4 +1,4 @@
-package Sudoku;
+package sudoku;
 
 public class SudokuConstants {
     /** Size of the board */
