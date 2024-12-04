@@ -1,19 +1,13 @@
-/**
- * ES234317-Algorithm and Data Structures
- * Semester Ganjil, 2024/2025
- * Group Capstone Project
- * Group #1
- * 1 - 5026221161 - Ryan Adi Putra Pratama
- * 2 - 5026231185 - Jannati Urfa Muhayat
- * 3 - 5026231226 - Vivi Alvianita
- */
+package Sudoku;
+
+import Sudoku.GameBoardPanel;
 
 import java.awt.*;
 import javax.swing.*;
 /**
  * The main Sudoku program
  */
-public class Sudoku extends JFrame {
+public class SudokuMain extends JFrame {
     private static final long serialVersionUID = 1L;  // to prevent serial warning
 
     // private variables
@@ -21,7 +15,7 @@ public class Sudoku extends JFrame {
     JButton btnNewGame = new JButton("New Game");
 
     // Constructor
-    public Sudoku() {
+    public SudokuMain() {
         Container cp = getContentPane();
         cp.setLayout(new BorderLayout());
 
@@ -40,9 +34,9 @@ public class Sudoku extends JFrame {
     }
 
     /** The entry main() entry method */
-    public static void play() {
+    public static void main(String[] args) {
         // [TODO 1] Check "Swing program template" on how to run
         //  the constructor of "SudokuMain"
-        new Sudoku();
+        new SudokuMain();
     }
 }
