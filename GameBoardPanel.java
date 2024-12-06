@@ -3,6 +3,9 @@ package sudoku;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.sound.sampled.*;
+import java.io.File;
+import java.io.IOException;
 
 public class GameBoardPanel extends JPanel {
     private static final long serialVersionUID = 1L;  // to prevent serial warning
@@ -18,6 +21,7 @@ public class GameBoardPanel extends JPanel {
 
     private int filledCellsCount = 0;  // Jumlah sel yang diisi dengan benar
     private int totalCells = SudokuConstants.GRID_SIZE * SudokuConstants.GRID_SIZE;
+    private Clip correctGuessSound;  // Clip untuk suara tebakan benar
 
     /** Constructor */
     public GameBoardPanel() {
@@ -40,6 +44,19 @@ public class GameBoardPanel extends JPanel {
         }
 
         super.setPreferredSize(new Dimension(BOARD_WIDTH, BOARD_HEIGHT));
+        loadCorrectGuessSound();  // Load the sound effect for correct guess
+    }
+
+    // Load the sound effect for correct guess
+    private void loadCorrectGuessSound() {
+        try {
+            File soundFile = new File("C:/ASD/Sudoku/assets/Correct_Answer_Sound_Effect_[_YouConvert.net_].wav"); // Path to your sound file
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
+            correctGuessSound = AudioSystem.getClip();
+            correctGuessSound.open(audioStream);
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -97,6 +114,7 @@ public class GameBoardPanel extends JPanel {
                         filledCellsCount++;  // Tambah jumlah sel yang terisi dengan benar
                     }
                     sourceCell.status = CellStatus.CORRECT_GUESS;
+                    playCorrectGuessSound();  // Play sound for correct guess
                 } else {
                     if (sourceCell.status == CellStatus.CORRECT_GUESS) {
                         filledCellsCount--;  // Kurangi jumlah sel yang terisi jika sebelumnya benar
@@ -112,6 +130,14 @@ public class GameBoardPanel extends JPanel {
                 JOptionPane.showMessageDialog(null, "Congratulations! You solved the puzzle!");
                 newGame();
             }
+        }
+    }
+
+    // Play the sound for correct guess
+    private void playCorrectGuessSound() {
+        if (correctGuessSound != null && correctGuessSound.isOpen()) {
+            correctGuessSound.setFramePosition(0); // Rewind to the beginning
+            correctGuessSound.start();  // Play the sound
         }
     }
 }

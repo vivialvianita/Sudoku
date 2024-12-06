@@ -2,18 +2,27 @@ package Sudoku;
 
 import sudoku.GameBoardPanel;
 
+import javax.sound.sampled.*;
 import java.awt.*;
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.IOException;
 
 /**
- * The main Sudoku program with modified features for user experience.
+ * The main Sudoku program with a welcome page and background music.
  */
 public class SudokuMain extends JFrame {
-    private static final long serialVersionUID = 1L;  // to prevent serial warning
+    private static final long serialVersionUID = 1L; // Prevent serial warning
 
-    // private variables
+    // Panels for the CardLayout
+    private JPanel cards;
+    private CardLayout cardLayout;
+
+    // Components for the welcome page
+    private JPanel welcomePanel;
+    private JButton btnPlay;
+
+    // Sudoku game components
     GameBoardPanel board = new GameBoardPanel();
     JButton btnNewGame = new JButton("New Game");
     JButton btnPause = new JButton("Pause");
@@ -33,22 +42,83 @@ public class SudokuMain extends JFrame {
     private int level = 1;
     private int bestTime = Integer.MAX_VALUE;
 
+    private Clip backgroundMusic;
+    private JButton btnToggleMusic; // Tombol untuk menghidupkan/mematikan musik
+    private boolean isMusicPlaying = true; // Status musik (nyala/mati)
+
     // Constructor
     public SudokuMain() {
-        Container cp = getContentPane();
-        cp.setLayout(new BorderLayout());
+        // Setting up CardLayout
+        cardLayout = new CardLayout();
+        cards = new JPanel(cardLayout);
 
-        // Panel atas untuk menampilkan waktu, skor, progress, dan level
+        // Initialize welcome page and game panels
+        initWelcomePage();
+        initGamePanel();
+
+        // Add panels to CardLayout
+        cards.add(welcomePanel, "Welcome");
+        cards.add(createGamePanel(), "Game");
+
+        // Set up JFrame
+        getContentPane().add(cards);
+        setTitle("Sudoku");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        pack();
+        setVisible(true);
+
+        // Start background music
+        playBackgroundMusic();
+    }
+
+    public static void main(String[] args) {
+        new SudokuMain();
+    }
+
+    // Initialize the welcome page
+    private void initWelcomePage() {
+        welcomePanel = new JPanel();
+        welcomePanel.setLayout(new BorderLayout());
+        welcomePanel.setBackground(new Color(255, 228, 196)); // Light color theme
+
+        JLabel lblTitle = new JLabel("Welcome to Sudoku", SwingConstants.CENTER);
+        lblTitle.setFont(new Font("Serif", Font.BOLD, 36));
+        lblTitle.setForeground(new Color(139, 69, 19)); // Brownish color
+
+        btnPlay = new JButton("Play");
+        btnPlay.setFont(new Font("Serif", Font.BOLD, 24));
+        btnPlay.setBackground(new Color(255, 165, 0)); // Orange button
+        btnPlay.setForeground(Color.WHITE);
+        btnPlay.setFocusPainted(false);
+        btnPlay.addActionListener(e -> {
+            cardLayout.show(cards, "Game");
+            startTimer();  // Start the timer when the game starts
+        });
+
+        welcomePanel.add(lblTitle, BorderLayout.CENTER);
+        welcomePanel.add(btnPlay, BorderLayout.SOUTH);
+    }
+
+    // Initialize the game panel
+    private void initGamePanel() {
+        board.newGame(); // Initialize the game board
+    }
+
+    // Create the game panel with all components
+    private JPanel createGamePanel() {
+        JPanel gamePanel = new JPanel(new BorderLayout());
+
+        // Top panel for displaying time, score, progress, and level
         JPanel topPanel = new JPanel(new GridLayout(1, 4));
         topPanel.add(lblTime);
         topPanel.add(lblScore);
         topPanel.add(lblProgress);
         topPanel.add(lblLevel);
-        cp.add(topPanel, BorderLayout.NORTH);
+        gamePanel.add(topPanel, BorderLayout.NORTH);
 
-        cp.add(board, BorderLayout.CENTER);
+        gamePanel.add(board, BorderLayout.CENTER);
 
-        // Menambahkan tombol New Game, Pause, Resume, Save, dan Load di bagian bawah
+        // Bottom panel for buttons
         JPanel bottomPanel = new JPanel(new FlowLayout());
         btnNewGame.addActionListener(e -> newGame());
         btnPause.addActionListener(e -> togglePause(true));
@@ -56,29 +126,24 @@ public class SudokuMain extends JFrame {
         btnSaveProgress.addActionListener(e -> saveProgress());
         btnLoadProgress.addActionListener(e -> loadProgress());
 
+        // Tombol untuk menghidupkan/mematikan musik
+        btnToggleMusic = new JButton("On/Off Music");
+        btnToggleMusic.setFont(new Font("Serif", Font.BOLD, 14));
+        btnToggleMusic.addActionListener(e -> toggleMusic());
+
         bottomPanel.add(btnNewGame);
         bottomPanel.add(btnPause);
         bottomPanel.add(btnResume);
         bottomPanel.add(btnSaveProgress);
         bottomPanel.add(btnLoadProgress);
-        cp.add(bottomPanel, BorderLayout.SOUTH);
+        bottomPanel.add(btnToggleMusic); // Menambahkan tombol kontrol musik
 
-        // Initialize the game board to start the game
-        board.newGame();
+        gamePanel.add(bottomPanel, BorderLayout.SOUTH);
 
-        pack();  // Pack the UI components
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);  // Handle window-closing
-        setTitle("Sudoku");
-        setVisible(true);
-
-        startTimer();  // Start the timer
+        return gamePanel;
     }
 
-    public static void main(String[] args) {
-        new SudokuMain();
-    }
-
-    // Timer untuk menghitung waktu permainan
+    // Timer for tracking gameplay time
     private void startTimer() {
         timer = new Timer(1000, e -> {
             if (!isPaused) {
@@ -95,12 +160,12 @@ public class SudokuMain extends JFrame {
         timer.start();
     }
 
-    // Mengatur jeda atau lanjutkan permainan
+    // Pause or resume the game
     private void togglePause(boolean pause) {
         isPaused = pause;
     }
 
-    // Memulai permainan baru dengan level yang lebih tinggi
+    // Start a new game with increased level
     private void newGame() {
         elapsedTime = 0;
         score = 1000;
@@ -111,12 +176,12 @@ public class SudokuMain extends JFrame {
         board.newGame();
     }
 
-    // Menyimpan skor
+    // Update the score label
     private void updateScore() {
         lblScore.setText("Score: " + score);
     }
 
-    // Menyimpan progress berdasarkan jumlah sel yang terisi
+    // Update progress label
     private void updateProgress() {
         int filledCells = board.getFilledCellsCount();
         int totalCells = board.getTotalCells();
@@ -126,21 +191,60 @@ public class SudokuMain extends JFrame {
         if (board.isSolved()) {
             if (elapsedTime < bestTime) {
                 bestTime = elapsedTime;
-                JOptionPane.showMessageDialog(null, "New Best Time: " + bestTime + "s!");
+                JOptionPane.showMessageDialog(this, "New Best Time: " + bestTime + "s!");
             }
             newGame();
         }
     }
 
-    // Menyimpan progress permainan
+    // Save game progress
     private void saveProgress() {
         JOptionPane.showMessageDialog(this, "Progress saved!");
-        // Logic untuk menyimpan game state di sini
     }
 
-    // Memuat progress permainan
+    // Load game progress
     private void loadProgress() {
         JOptionPane.showMessageDialog(this, "Progress loaded!");
-        // Logic untuk memuat game state di sini
+    }
+
+    // Menyalakan atau mematikan musik
+    private void toggleMusic() {
+        if (isMusicPlaying) {
+            stopBackgroundMusic();
+        } else {
+            playBackgroundMusic();
+        }
+        isMusicPlaying = !isMusicPlaying; // Toggle the music state
+    }
+
+    // Play background music with looping
+    private void playBackgroundMusic() {
+        try {
+            File musicFile = new File("C:/ASD/Sudoku/assets/Electric_-_3_Minute_Countdown_[_YTBMP3.org_].wav");
+
+            // Cek apakah file ada
+            if (!musicFile.exists()) {
+                System.out.println("File not found: " + musicFile.getAbsolutePath());
+                return;
+            }
+
+            // Memulai pemutaran musik
+            AudioInputStream audioStream = AudioSystem.getAudioInputStream(musicFile);
+            backgroundMusic = AudioSystem.getClip();
+            backgroundMusic.open(audioStream);
+
+            // Looping musik
+            backgroundMusic.loop(Clip.LOOP_CONTINUOUSLY); // Looping musik tanpa henti
+            backgroundMusic.start(); // Mulai pemutaran musik
+        } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
+            e.printStackTrace(); // Jika ada error, tampilkan error
+        }
+    }
+
+    // Fungsi untuk menghentikan musik latar
+    private void stopBackgroundMusic() {
+        if (backgroundMusic != null && backgroundMusic.isRunning()) {
+            backgroundMusic.stop();
+        }
     }
 }
