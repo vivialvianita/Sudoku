@@ -101,18 +101,25 @@ public class SudokuMain extends JFrame {
 
     // Initialize the welcome page
     private void initWelcomePage() {
-        welcomePanel = new JPanel();
+        welcomePanel = new JPanel(){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Ganti "path/to/welcome_background.jpg" dengan path gambar Anda
+                ImageIcon backgroundImage = new ImageIcon("assets/antariksa.jpg");
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
         welcomePanel.setLayout(new BorderLayout());
-        welcomePanel.setBackground(new Color(255, 228, 196)); // Light color theme
 
         JLabel lblTitle = new JLabel("Welcome to Sudoku", SwingConstants.CENTER);
         lblTitle.setFont(new Font("Serif", Font.BOLD, 36));
-        lblTitle.setForeground(new Color(139, 69, 19)); // Brownish color
+        lblTitle.setForeground(Color.WHITE);  // Brownish color
 
         btnPlay = new JButton("Play");
         btnPlay.setFont(new Font("Serif", Font.BOLD, 24));
-        btnPlay.setBackground(new Color(255, 165, 0)); // Orange button
-        btnPlay.setForeground(Color.WHITE);
+        btnPlay.setBackground(new Color(255, 215, 0)); // Gold button
+        btnPlay.setForeground(new Color(255, 215, 0));
         btnPlay.setFocusPainted(false);
         btnPlay.addActionListener(e -> {
             cardLayout.show(cards, "Game");
@@ -130,7 +137,15 @@ public class SudokuMain extends JFrame {
 
     // Create the game panel with all components
     private JPanel createGamePanel() {
-        JPanel gamePanel = new JPanel(new BorderLayout());
+        JPanel gamePanel = new JPanel(new BorderLayout()){
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Ganti "path/to/game_background.jpg" dengan path gambar Anda
+                ImageIcon backgroundImage = new ImageIcon("assets/antariksa.jpg");
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
 
         // Top panel for displaying time, score, progress, and level
         JPanel topPanel = new JPanel(new GridLayout(1, 4));
@@ -150,6 +165,7 @@ public class SudokuMain extends JFrame {
 
         // Bottom panel for buttons
         JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.setOpaque(false);
         btnNewGame.addActionListener(e -> newGame());
         easy.addActionListener(e -> {
             diff = "Easy"; // Mengatur level kesulitan
