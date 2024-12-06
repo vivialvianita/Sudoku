@@ -1,4 +1,4 @@
-package Sudoku;
+package sudoku;
 
 import sudoku.GameBoardPanel;
 
@@ -7,7 +7,10 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-
+import javax.swing.*;
+import java.awt.*;
+import javax.swing.*;
+import java.awt.*;
 /**
  * The main Sudoku program with a welcome page and background music.
  */
@@ -97,7 +100,10 @@ public class SudokuMain extends JFrame {
 
         welcomePanel.add(lblTitle, BorderLayout.CENTER);
         welcomePanel.add(btnPlay, BorderLayout.SOUTH);
+
     }
+
+
 
     // Initialize the game panel
     private void initGamePanel() {
@@ -106,10 +112,19 @@ public class SudokuMain extends JFrame {
 
     // Create the game panel with all components
     private JPanel createGamePanel() {
-        JPanel gamePanel = new JPanel(new BorderLayout());
+        JPanel gamePanel = new JPanel(new BorderLayout()) {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                // Ganti "path/to/game_background.jpg" dengan path gambar Anda
+                ImageIcon backgroundImage = new ImageIcon("assets/background.jpg");
+                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
+            }
+        };
 
         // Top panel for displaying time, score, progress, and level
         JPanel topPanel = new JPanel(new GridLayout(1, 4));
+        topPanel.setOpaque(false); // Membuat panel transparan
         topPanel.add(lblTime);
         topPanel.add(lblScore);
         topPanel.add(lblProgress);
@@ -120,6 +135,7 @@ public class SudokuMain extends JFrame {
 
         // Bottom panel for buttons
         JPanel bottomPanel = new JPanel(new FlowLayout());
+        bottomPanel.setOpaque(false); // Membuat panel transparan
         btnNewGame.addActionListener(e -> newGame());
         btnPause.addActionListener(e -> togglePause(true));
         btnResume.addActionListener(e -> togglePause(false));
@@ -220,7 +236,7 @@ public class SudokuMain extends JFrame {
     // Play background music with looping
     private void playBackgroundMusic() {
         try {
-            File musicFile = new File("C:/ASD/Sudoku/assets/Electric_-_3_Minute_Countdown_[_YTBMP3.org_].wav");
+            File musicFile = new File("assets/Electric_-_3_Minute_Countdown_[_YTBMP3.org_].wav");
 
             // Cek apakah file ada
             if (!musicFile.exists()) {
