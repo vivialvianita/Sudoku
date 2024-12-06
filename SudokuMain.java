@@ -155,6 +155,8 @@ public class SudokuMain extends JFrame {
         topPanel.add(lblLevel);
         gamePanel.add(topPanel, BorderLayout.NORTH);
 
+
+        board.setOpaque(false);
         gamePanel.add(board, BorderLayout.CENTER);
         diffmenu.add(easy);
         diffmenu.add(medium);
