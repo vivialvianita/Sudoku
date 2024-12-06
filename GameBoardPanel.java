@@ -50,7 +50,7 @@ public class GameBoardPanel extends JPanel {
     // Load the sound effect for correct guess
     private void loadCorrectGuessSound() {
         try {
-            File soundFile = new File("C:/ASD/Sudoku/assets/Correct_Answer_Sound_Effect_[_YouConvert.net_].wav"); // Path to your sound file
+            File soundFile = new File("C:/Sudoku/assets/Correct_Answer_Sound_Effect_[_YouConvert.net_].wav"); // Path to your sound file
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(soundFile);
             correctGuessSound = AudioSystem.getClip();
             correctGuessSound.open(audioStream);
@@ -63,8 +63,16 @@ public class GameBoardPanel extends JPanel {
      * Generate a new puzzle; and reset the game board of cells based on the puzzle.
      * You can call this method to start a new game.
      */
-    public void newGame() {
-        puzzle.newPuzzle(2);
+    public void newGame(String difficulty) {
+
+        if(difficulty == "Easy"){
+            puzzle.newPuzzle(2);
+        } else if (difficulty == "Intermediate") {
+            puzzle.newPuzzle(10);
+        } else if (difficulty == "Difficult") {
+            puzzle.newPuzzle(20);
+        }
+
         filledCellsCount = 0;  // Reset jumlah sel yang terisi
         for (int row = 0; row < SudokuConstants.GRID_SIZE; ++row) {
             for (int col = 0; col < SudokuConstants.GRID_SIZE; ++col) {
@@ -72,6 +80,8 @@ public class GameBoardPanel extends JPanel {
             }
         }
     }
+
+
 
     /**
      * Return true if the puzzle is solved
@@ -128,7 +138,6 @@ public class GameBoardPanel extends JPanel {
 
             if (isSolved()) {
                 JOptionPane.showMessageDialog(null, "Congratulations! You solved the puzzle!");
-                newGame();
             }
         }
     }

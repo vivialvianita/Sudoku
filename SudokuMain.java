@@ -7,10 +7,7 @@ import java.awt.*;
 import javax.swing.*;
 import java.io.File;
 import java.io.IOException;
-import javax.swing.*;
-import java.awt.*;
-import javax.swing.*;
-import java.awt.*;
+
 /**
  * The main Sudoku program with a welcome page and background music.
  */
@@ -28,6 +25,16 @@ public class SudokuMain extends JFrame {
     // Sudoku game components
     GameBoardPanel board = new GameBoardPanel();
     JButton btnNewGame = new JButton("New Game");
+    JMenuBar difficulty = new JMenuBar();
+    JMenu diffmenu = new JMenu("Level");
+
+    // create menuitems
+    JMenuItem easy = new JMenuItem("Easy");
+    JMenuItem medium = new JMenuItem("Intermediate");
+    JMenuItem hard = new JMenuItem("Difficult");
+
+// add menu items to menu
+
     JButton btnPause = new JButton("Pause");
     JButton btnResume = new JButton("Resume");
     JButton btnSaveProgress = new JButton("Save Progress");
@@ -44,6 +51,9 @@ public class SudokuMain extends JFrame {
     private boolean isPaused = false;
     private int level = 1;
     private int bestTime = Integer.MAX_VALUE;
+
+    private String diff = "Easy";
+
 
     private Clip backgroundMusic;
     private JButton btnToggleMusic; // Tombol untuk menghidupkan/mematikan musik
@@ -72,6 +82,8 @@ public class SudokuMain extends JFrame {
 
         // Start background music
         playBackgroundMusic();
+
+
     }
 
     public static void main(String[] args) {
@@ -100,31 +112,19 @@ public class SudokuMain extends JFrame {
 
         welcomePanel.add(lblTitle, BorderLayout.CENTER);
         welcomePanel.add(btnPlay, BorderLayout.SOUTH);
-
     }
-
-
 
     // Initialize the game panel
     private void initGamePanel() {
-        board.newGame(); // Initialize the game board
+        board.newGame(diff); // Initialize the game board
     }
 
     // Create the game panel with all components
     private JPanel createGamePanel() {
-        JPanel gamePanel = new JPanel(new BorderLayout()) {
-            @Override
-            protected void paintComponent(Graphics g) {
-                super.paintComponent(g);
-                // Ganti "path/to/game_background.jpg" dengan path gambar Anda
-                ImageIcon backgroundImage = new ImageIcon("assets/background.jpg");
-                g.drawImage(backgroundImage.getImage(), 0, 0, getWidth(), getHeight(), this);
-            }
-        };
+        JPanel gamePanel = new JPanel(new BorderLayout());
 
         // Top panel for displaying time, score, progress, and level
         JPanel topPanel = new JPanel(new GridLayout(1, 4));
-        topPanel.setOpaque(false); // Membuat panel transparan
         topPanel.add(lblTime);
         topPanel.add(lblScore);
         topPanel.add(lblProgress);
@@ -132,11 +132,32 @@ public class SudokuMain extends JFrame {
         gamePanel.add(topPanel, BorderLayout.NORTH);
 
         gamePanel.add(board, BorderLayout.CENTER);
+        diffmenu.add(easy);
+        diffmenu.add(medium);
+        diffmenu.add(hard);
+
+// add menu to menu bar
+        difficulty.add(diffmenu);
 
         // Bottom panel for buttons
         JPanel bottomPanel = new JPanel(new FlowLayout());
-        bottomPanel.setOpaque(false); // Membuat panel transparan
         btnNewGame.addActionListener(e -> newGame());
+        easy.addActionListener(e -> {
+            diff = "Easy"; // Mengatur level kesulitan
+            newGame();     // Memulai permainan baru
+        });
+
+        medium.addActionListener(e -> {
+            diff = "Intermediate"; // Mengatur level kesulitan
+            newGame();     // Memulai permainan baru
+        });
+
+
+        hard.addActionListener(e -> {
+            diff = "Difficult"; // Mengatur level kesulitan
+            newGame();     // Memulai permainan baru
+        });
+
         btnPause.addActionListener(e -> togglePause(true));
         btnResume.addActionListener(e -> togglePause(false));
         btnSaveProgress.addActionListener(e -> saveProgress());
@@ -148,6 +169,7 @@ public class SudokuMain extends JFrame {
         btnToggleMusic.addActionListener(e -> toggleMusic());
 
         bottomPanel.add(btnNewGame);
+        bottomPanel.add(difficulty);
         bottomPanel.add(btnPause);
         bottomPanel.add(btnResume);
         bottomPanel.add(btnSaveProgress);
@@ -189,7 +211,7 @@ public class SudokuMain extends JFrame {
         lblTime.setText("Time: 0s");
         lblScore.setText("Score: 1000");
         lblLevel.setText("Level: " + level);
-        board.newGame();
+        board.newGame(diff);
     }
 
     // Update the score label
